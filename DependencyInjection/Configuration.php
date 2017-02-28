@@ -33,6 +33,12 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
+                ->arrayNode('template')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('engine')->defaultValue('twig')->end()
+                    ->end()
+                ->end()
                 ->booleanNode('security_acl')->defaultFalse()->end()
                 ->arrayNode('table')
                     ->addDefaultsIfNotSet()

@@ -11,6 +11,13 @@
         <field name="biography" type="string" column="biography" length="1000" nullable="true"/>
         <field name="gender" type="string" column="gender" length="1" nullable="true"/>
         <field name="locale" type="string" column="locale" length="8" nullable="true"/>
+        <field name="locked" type="boolean" column="locked" nullable="true"/>
+        <field name="expired" column="expired" type="boolean" />
+        <field name="credentialsExpired" column="credentials_expired" type="boolean" />
+        <field name="expiresAt" column="expires_at" type="datetime" nullable="true" />
+        <field name="credentialsExpireAt" column="credentials_expire_at" type="datetime" nullable="true" />
+
+
         <field name="timezone" type="string" column="timezone" length="64" nullable="true"/>
         <field name="phone" type="string" column="phone" length="64" nullable="true"/>
         <!-- social fields -->
@@ -23,6 +30,9 @@
         <field name="gplusUid" type="string" column="gplus_uid" length="255" nullable="true"/>
         <field name="gplusName" type="string" column="gplus_name" length="255" nullable="true"/>
         <field name="gplusData" type="json" column="gplus_data" nullable="true"/>
+
+
+
         <!-- extra security fields -->
         <field name="token" type="string" length="255" column="token" nullable="true"/>
         <field name="twoStepVerificationCode" type="string" length="255" column="two_step_code" nullable="true"/>

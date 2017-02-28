@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @author Hugo Briand <briand@ekino.com>
@@ -26,7 +27,7 @@ class SecurityFOSUser1Controller extends SecurityController
     /**
      * {@inheritdoc}
      */
-    public function loginAction()
+    public function loginAction(Request $request)
     {
         // NEXT_MAJOR: remove when dropping Symfony <2.8 support
         $tokenStorageService = $this->container->has('security.token_storage')
@@ -49,7 +50,7 @@ class SecurityFOSUser1Controller extends SecurityController
         */
 
         /** @var $request \Symfony\Component\HttpFoundation\Request */
-        $request = $this->container->get('request');
+        //$request = $this->container->get('request');
         /** @var $session \Symfony\Component\HttpFoundation\Session\Session */
         $session = $request->getSession();
 
@@ -75,10 +76,14 @@ class SecurityFOSUser1Controller extends SecurityController
         $lastUserNameKey = class_exists('Symfony\Component\Security\Core\Security')
             ? Security::LAST_USERNAME : SecurityContextInterface::LAST_USERNAME;
 
+        $csrfToken = $this->has('security.csrf.token_manager')
+            ? $this->get('security.csrf.token_manager')->getToken('authenticate')->getValue()
+            : null;
+            
         return $this->renderLogin(array(
             'last_username' => (null === $session) ? '' : $session->get($lastUserNameKey),
             'error' => $error,
-            'csrf_token' => $this->container->get('form.csrf_provider')->generateCsrfToken('authenticate'),
+            'csrf_token' => $csrfToken,
         ));
     }
 }

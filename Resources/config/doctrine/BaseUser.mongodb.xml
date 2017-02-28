@@ -11,8 +11,13 @@
         <field name="biography" type="string"/>
         <field name="gender" type="string"/>
         <field name="locale" type="string"/>
+        <field name="locked" fieldName="locked" type="boolean" nullable="true"/>
         <field name="timezone" type="string"/>
         <field name="phone" type="string"/>
+        <field name="expiresAt" fieldName="expiresAt" type="date" />
+        <field name="expired" fieldName="expired" type="boolean" />
+        <field name="credentialsExpired" column="credentials_expired" type="boolean" />
+
         <!-- social fields -->
         <field name="facebookUid" type="string"/>
         <field name="facebookName" type="string"/>

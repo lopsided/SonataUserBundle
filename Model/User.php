@@ -11,7 +11,7 @@
 
 namespace Sonata\UserBundle\Model;
 
-use FOS\UserBundle\Entity\User as AbstractedUser;
+use FOS\UserBundle\Model\User as AbstractedUser;
 
 /**
  * Represents a User model.
@@ -67,6 +67,11 @@ abstract class User extends AbstractedUser implements UserInterface
      * @var string
      */
     protected $locale;
+
+    /**
+     * @var boolean
+     */
+    protected $locked;
 
     /**
      * @var string
@@ -127,6 +132,36 @@ abstract class User extends AbstractedUser implements UserInterface
      * @var string
      */
     protected $token;
+
+    /**
+     * @var boolean
+     */
+    protected $credentialsExpired;
+
+    /**
+     * @var \DateTime
+     */
+    protected $credentialsExpireAt;
+
+    /**
+     * @var boolean
+     */
+    protected $expired;
+
+    /**
+     * @var \DateTime
+     */
+    protected $expiresAt;
+
+
+    public function __construct()
+    {
+        $this->locked = false;
+        $this->expired = false;
+        $this->credentialsExpired = false;
+        parent::__construct();
+    }
+
 
     /**
      * Returns a string representation.
@@ -681,4 +716,84 @@ abstract class User extends AbstractedUser implements UserInterface
 
         return $this;
     }
+
+    public function setLocked($boolean)
+    {
+        $this->locked = $boolean;
+
+        return $this;
+    }
+
+    public function isAccountNonLocked()
+    {
+        return !$this->locked;
+    }
+
+    public function isLocked()
+    {
+        return !$this->isAccountNonLocked();
+    }
+
+    /**
+     * Sets this user to expired.
+     *
+     * @param Boolean $boolean
+     *
+     * @return User
+     */
+    public function setExpired($boolean)
+    {
+        $this->expired = (Boolean) $boolean;
+
+        return $this;
+    }
+
+     /**
+     * @param boolean $boolean
+     *
+     * @return User
+     */
+    public function setCredentialsExpired($boolean)
+    {
+        $this->credentialsExpired = $boolean;
+
+        return $this;
+    }
+
+    public function isAccountNonExpired()
+    {
+        if (true === $this->expired) {
+            return false;
+        }
+
+        if (null !== $this->expiresAt && $this->expiresAt->getTimestamp() < time()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function isCredentialsNonExpired()
+    {
+        if (true === $this->credentialsExpired) {
+            return false;
+        }
+
+        if (null !== $this->credentialsExpireAt && $this->credentialsExpireAt->getTimestamp() < time()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function isCredentialsExpired()
+    {
+        return !$this->isCredentialsNonExpired();
+    }
+
+    public function isExpired()
+    {
+        return !$this->isAccountNonExpired();
+    }
+
 }

@@ -50,7 +50,11 @@ class SonataUserExtension extends Extension
         $loader->load('block.xml');
         $loader->load('menu.xml');
         $loader->load('form.xml');
-        $loader->load('google_authenticator.xml');
+
+        if (class_exists('Google\Authenticator\GoogleAuthenticator')) {
+            $loader->load('google_authenticator.xml');
+        }
+
         $loader->load('twig.xml');
 
         if ('orm' === $config['manager_type'] && isset(
@@ -97,17 +101,13 @@ class SonataUserExtension extends Extension
             ->replaceArgument(2, $tokenStorageReference)
         ;
 
-        $container
-            ->getDefinition('sonata.user.google.authenticator.request_listener')
-            ->replaceArgument(1, $tokenStorageReference)
-        ;
-
         $this->registerDoctrineMapping($config);
         $this->configureAdminClass($config, $container);
         $this->configureClass($config, $container);
 
         $this->configureTranslationDomain($config, $container);
         $this->configureController($config, $container);
+        $this->configureTemplateEngine($config, $container);
 
         // add custom form widgets
         $container->setParameter('twig.form.resources', array_merge(
@@ -167,6 +167,22 @@ class SonataUserExtension extends Extension
      */
     public function configureGoogleAuthenticator($config, ContainerBuilder $container)
     {
+        if (class_exists('Google\Authenticator\GoogleAuthenticator')) {
+            // Set the SecurityContext for Symfony <2.6
+            // NEXT_MAJOR: Go back to simple xml configuration when bumping requirements to SF 2.6+
+            if (interface_exists(
+                'Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface'
+            )) {
+                $tokenStorageReference = new Reference('security.token_storage');
+            } else {
+                $tokenStorageReference = new Reference('security.context');
+            }
+
+            $container
+                ->getDefinition('sonata.user.google.authenticator.request_listener')
+                ->replaceArgument(1, $tokenStorageReference);
+        }
+
         $container->setParameter('sonata.user.google.authenticator.enabled', $config['google_authenticator']['enabled']);
 
         if (!$config['google_authenticator']['enabled']) {
@@ -254,8 +270,14 @@ class SonataUserExtension extends Extension
      */
     public function configureController($config, ContainerBuilder $container)
     {
+
         $container->setParameter('sonata.user.admin.user.controller', $config['admin']['user']['controller']);
         $container->setParameter('sonata.user.admin.group.controller', $config['admin']['group']['controller']);
+    }
+
+    public function configureTemplateEngine($config, ContainerBuilder $container)
+    {
+        $container->setParameter('sonata.user.template.engine', $config['template']['engine']);
     }
 
     /**
@@ -298,8 +320,8 @@ class SonataUserExtension extends Extension
      */
     public function configureShortcut(ContainerBuilder $container)
     {
-        $container->setAlias('sonata.user.authentication.form', 'fos_user.profile.form');
-        $container->setAlias('sonata.user.authentication.form_handler', 'fos_user.profile.form.handler');
+        //$container->setAlias('sonata.user.authentication.form', 'fos_user.profile.form');
+        //$container->setAlias('sonata.user.authentication.form_handler', 'fos_user.profile.form.handler');
     }
 
     /**
@@ -317,7 +339,7 @@ class SonataUserExtension extends Extension
 
         $container->setParameter('sonata.user.configuration.profile_blocks', $config['profile']['dashboard']['blocks']);
 
-        $container->setAlias('sonata.user.profile.form.handler', $config['profile']['form']['handler']);
+        //$container->setAlias('sonata.user.profile.form.handler', $config['profile']['form']['handler']);
     }
 
     /**
@@ -343,7 +365,7 @@ class SonataUserExtension extends Extension
         $container->setParameter('sonata.user.registration.form.name', $config['profile']['register']['form']['name']);
         $container->setParameter('sonata.user.registration.form.validation_groups', $config['profile']['register']['form']['validation_groups']);
 
-        $container->setAlias('sonata.user.registration.form.handler', $config['profile']['register']['form']['handler']);
+        //$container->setAlias('sonata.user.registration.form.handler', $config['profile']['register']['form']['handler']);
     }
 
     /**
